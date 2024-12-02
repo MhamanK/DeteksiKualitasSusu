@@ -23,14 +23,49 @@
       // Update the color preview
       document.getElementById('color-preview').style.backgroundColor = rgbColor;
     }
+    function validateForm(event) {
+      // Get values from the formfunction validateForm(event) {
+      // Get the form values
+      let ph = document.querySelector('[name="ph"]').value;
+      let temperature = document.querySelector('[name="temperature"]').value;
+      let taste = document.querySelector('[name="taste"]:checked');
+      let odor = document.querySelector('[name="odor"]:checked');
+      let fat = document.querySelector('[name="fat"]:checked');
+      let turbidity = document.querySelector('[name="turbidity"]:checked');
+      let color = document.querySelector('[name="color"]').value;
+
+      // Validate if all fields are filled
+      if (!ph || !temperature || !taste || !odor || !fat || !turbidity || !color) {
+        alert("Please fill in all fields.");
+        event.preventDefault();  // Prevent form submission
+        return false;
+      }
+
+      // Validate pH: Must be between 3 and 9.5
+      if (ph < 3 || ph > 9.5) {
+        alert("pH must be between 3 and 9.5.");
+        event.preventDefault();
+        return false;
+      }
+
+      // Validate temperature: Must be an integer between 34 and 90
+      if (!Number.isInteger(parseFloat(temperature)) || temperature < 34 || temperature > 90) {
+        alert("Temperature must be an integer between 34 and 90.");
+        event.preventDefault();
+        return false;
+      }
+
+      // If all validations pass, allow form submission
+      return true;
+    }
   </script>
   <div class="login">
     <h1>Predict Milk Quality</h1>
 
     <!-- Main Input For Receiving Query to our ML -->
-    <form action="{{ url_for('predict')}}" method="post">
-      <input type="text" name="ph" placeholder="pH" required="required" />
-      <input type="text" name="temperature" placeholder="Temperature" required="required" />
+    <form action="/predict" method="post" onsubmit="return validateForm(event)">
+      <input type="text" name="ph" placeholder="pH (3-9.5)" required="required" />
+      <input type="text" name="temperature" placeholder="Temperature (34-90)" required="required" />
 
       <div class="radio-div">
         <label for="taste">Taste:</label>
@@ -41,8 +76,8 @@
           <label for="taste-bad">Bad</label>
         </div>
       </div>
-      
-      <div>
+
+      <div class="radio-div">
         <label for="odor">Odor:</label>
         <div class="radio-container">
           <input type="radio" id="odor-good" name="odor" value="1" required="required">
@@ -51,8 +86,8 @@
           <label for="odor-bad">Bad</label>
         </div>
       </div>
-      
-      <div>
+
+      <div class="radio-div">
         <label for="fat">Fat:</label>
         <div class="radio-container">
           <input type="radio" id="fat-high" name="fat" value="1" required="required">
@@ -61,22 +96,24 @@
           <label for="fat-low">Low</label>
         </div>
       </div>
-      
-      <div>
+
+      <div class="radio-div">
         <label for="turbidity">Turbidity:</label>
         <div class="radio-container">
-          <input type="radio" id="turbidity-high" name="turbidiy" value="1" required="required">
+          <input type="radio" id="turbidity-high" name="turbidity" value="1" required="required">
           <label for="turbidity-high">High</label>
-          <input type="radio" id="turbidity-low" name="turbidiy" value="0" required="required">
+          <input type="radio" id="turbidity-low" name="turbidity" value="0" required="required">
           <label for="turbidity-low">Low</label>
         </div>
-      </div>      
+      </div>
 
-      <div>
-        <label for="slider">Adjust RGB (240 - 255):</label>
-        <input oninput="change(this.value)" onchange="change(this.value)" type="range" id="slider" name="slider"
-          min="200" max="255">
-        <div id="color-preview" style="width: 100px; height: 100px; margin-top: 10px; border: 2px solid #000;"></div>
+      <div class="color-div">
+        <label for="slider">Color (240 - 255):</label>
+        <input oninput="change(this.value)" onchange="change(this.value)" type="range" id="color" name="color" min="240"
+          max="255" value="255">
+        <div id="color-preview"
+          style="width: 80px; height: 20px; margin-top: 10px;margin-left: 10px; border: 2px solid #000; background-color: #FFF;">
+        </div>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
@@ -84,7 +121,7 @@
 
     <br>
     <br>
-    {{ prediction_text }}
+    {{ prediction }}
 
   </div>
 
